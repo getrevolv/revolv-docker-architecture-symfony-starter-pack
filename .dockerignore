@@ -26,5 +26,3 @@
 **/.phpunit
 **/.phpunit.result.cache
 **/phpunit.xml
-
-**/.docker/
