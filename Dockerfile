@@ -56,7 +56,7 @@ WORKDIR /symfony
 
 # ----
 
-FROM base as vendor
+FROM base as composer
 
 RUN echo "$(curl -sS https://composer.github.io/installer.sig) -" > composer-setup.php.sig \
     && curl -sS https://getcomposer.org/installer | tee composer-setup.php | sha384sum -c composer-setup.php.sig \
@@ -67,8 +67,10 @@ COPY composer.json .
 COPY composer.lock .
 
 COPY symfony.lock .
+COPY .env* ./
 
 RUN composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --no-suggest --optimize-autoloader
+RUN composer dump-env prod
 
 # ----
 
@@ -91,7 +93,9 @@ FROM base
 
 COPY . .
 
-COPY --from=vendor /symfony/vendor vendor
+COPY --from=composer /symfony/vendor vendor
+COPY --from=composer /symfony/.env.local.php .
+
 COPY --from=assets /symfony/public/build public/build
 
 COPY .docker/entrypoint.sh /entrypoint.sh
