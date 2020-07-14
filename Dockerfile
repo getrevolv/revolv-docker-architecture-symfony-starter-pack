@@ -1,8 +1,7 @@
 FROM alpine:3.12.0 as base
 
-LABEL maintainer="The Revolv team <support@getrevolv.com>"
-
 RUN apk add --update --no-cache \
+    bash \
     coreutils \
     curl \
     make \
@@ -78,16 +77,19 @@ RUN composer dump-env prod
 
 FROM base as assets
 
-RUN apk add --update --no-cache yarn
+RUN mkdir -p public/build
 
-COPY package.json .
-COPY yarn.lock .
+COPY composer.json package.json* ./
+COPY composer.json yarn.lock* ./
 
-COPY webpack.config.js .
-COPY assets assets
+COPY composer.json webpack.config.js* ./
+COPY composer.json assets* ./assets/
 
-RUN yarn
-RUN yarn encore production
+RUN if [ -f webpack.config.js ]; then \
+      apk add --update --no-cache yarn; \
+      yarn; \
+      yarn encore production; \
+    fi
 
 # ----
 
