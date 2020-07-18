@@ -2,7 +2,6 @@ version: "3.7"
 
 services:
   app:
-    container_name: symfony_ci_app
     build:
       context: .
       dockerfile: Dockerfile.dev
